@@ -8,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 var services = builder.Services;
 services.AddScoped<IBreastfeedingServices, BreastfeedingServices>();
 services.AddScoped<ISleepServices, SleepServices>();
+services.AddScoped<IBowelMovementService, BowelMovementService>();
 
 
 builder.Services.AddControllers();
