@@ -8,7 +8,7 @@ namespace FullStack.API.Controllers
     [ApiController]
     public class SleepController : ControllerBase
     {
-        readonly ISleepServices _sleepServices;
+        private readonly ISleepServices _sleepServices;
 
         public SleepController(ISleepServices sleepServices)
         {
@@ -16,38 +16,58 @@ namespace FullStack.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllSleeps()
         {
-            var Sleeps = await _sleepServices.GetAllSleeps();
-            return Ok(Sleeps);
+            var sleeps = await _sleepServices.GetAllSleeps();
+            return Ok(sleeps);
         }
 
-
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetSleepById(int id)
         {
             var sleep = await _sleepServices.GetSleepById(id);
             if (sleep == null)
             {
                 return NotFound();
             }
+
             return Ok(sleep);
         }
 
-
-
-
-        [HttpGet("Today")]
+        [HttpGet("today")]
         public async Task<IActionResult> GetAllByToday(string clientTimeZone)
         {
             var sleeps = await _sleepServices.GetSleepsByToday(clientTimeZone);
-
             return Ok(sleeps);
         }
 
-        [HttpPost("NewOne")]
-        public async Task<IActionResult> Add (Sleep sleep)
+        [HttpGet("ByDate")]
+        public async Task<IActionResult> GetSleepsByDate([FromQuery] DateTime date, string clientTimeZone)
         {
+            try
+            {
+                var result = await _sleepServices.GetSleepsByDate(date, clientTimeZone);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("new")]
+        public async Task<IActionResult> CreateSleep(Sleep sleep)
+        {
+            if (sleep == null || sleep.start_time == null || sleep.end_time == null)
+            {
+                return BadRequest("Sleep data is invalid");
+            }
+
+            //if (sleep.start_time >= sleep.end_time)
+            //{
+            //    return BadRequest("Sleep start time must be before end time");
+            //}
+
             decimal duration = (decimal)(sleep.end_time - sleep.start_time).TotalMinutes;
             sleep.durationInMinutes = duration;
 
@@ -58,27 +78,28 @@ namespace FullStack.API.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "Error al crear el registro de sueño.", error = ex.Message });
+                return BadRequest(new { message = "Error creating sleep record.", error = ex.Message });
             }
         }
 
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> Update (int id , Sleep sleep)
+        public async Task<IActionResult> UpdateSleep(int id, Sleep sleep)
         {
-            if(sleep.Id == id)
+            if (sleep == null || sleep.Id != id)
             {
-                await _sleepServices.UpdateSleep(sleep);
+                return BadRequest("Invalid sleep data or Id");
             }
+
+            await _sleepServices.UpdateSleep(sleep);
             return Ok();
         }
 
 
         [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteSleep(int id)
         {
             await _sleepServices.DeleteSleep(id);
             return Ok();
         }
-
     }
 }

@@ -6,7 +6,7 @@ namespace FullStack.API.Services
     {
         Task<List<BowelMovement>> GetAllBowelMovements();
         Task<BowelMovement> CreateBowelMovement(BowelMovement bowelMovement);
-
+        Task<List<BowelMovement>> GetBowelMovementByDate(DateTime date, string clientTimeZone);
         Task<List<BowelMovement>> GetBowelMovementByToday(string clientTimeZone);
         Task<BowelMovement> GetBowelMovementsById(int id);
         Task DeleteBowelMovement(int id);

@@ -6,6 +6,8 @@ namespace FullStack.API.Services
     {
         Task<List<Sleep>> GetAllSleeps();
         Task<List<Sleep>> GetSleepsByToday(string clientTimeZone);
+
+        Task<List<Sleep>> GetSleepsByDate(DateTime date, string clientTimeZone);
         Task<Sleep> GetSleepById(int id);
         Task<Sleep> CreateSleep(Sleep sleep);
         Task UpdateSleep(Sleep sleep);

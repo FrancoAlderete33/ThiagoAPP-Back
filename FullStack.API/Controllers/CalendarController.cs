@@ -2,46 +2,45 @@
 using FullStack.API.Services;
 using Microsoft.AspNetCore.Mvc;
 
-
 namespace FullStack.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class BreastfeedingController : ControllerBase
+    [Route("api/[controller]")]
+    public class CalendarController : ControllerBase
     {
-        readonly IBreastfeedingServices _breastfeedingService;
+        readonly ICalendarServices _calendarServices;
 
-        public BreastfeedingController(IBreastfeedingServices breastfeedingService)
+        public CalendarController(ICalendarServices calendarServices)
         {
-            _breastfeedingService = breastfeedingService;
+            _calendarServices = calendarServices;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllBreastfeedings()
+        public async Task<IActionResult> GetAllEvents()
         {
-            var breastfeedings = await _breastfeedingService.GetAllBreastfeedings();
-            return Ok(breastfeedings);
+            var events = await _calendarServices.GetAllEvents();
+            return Ok(events);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetBreastfeedingById(int id)
+        public async Task<IActionResult> GetEventById(int id)
         {
-            var breastfeeding = await _breastfeedingService.GetBreastfeedingById(id);
-            if (breastfeeding == null)
+            var eventById = await _calendarServices.GetEventById(id);
+            if (eventById == null)
             {
                 return NotFound();
             }
-            return Ok(breastfeeding);
+            return Ok(eventById);
         }
 
 
 
         [HttpGet("Today")]
-        public async Task<IActionResult> GetBreastfeedingByToday([FromQuery] string clientTimeZone)
+        public async Task<IActionResult> GetEventsByToday([FromQuery] string clientTimeZone)
         {
-            var breastFeedings = await _breastfeedingService.GetBreastfeedingByToday(clientTimeZone);
+            var events = await _calendarServices.GetEventsByToday(clientTimeZone);
 
-            return Ok(breastFeedings);
+            return Ok(events);
         }
 
         [HttpGet("ByDate")]
@@ -81,9 +80,9 @@ namespace FullStack.API.Controllers
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateBreastfeeding(int id, [FromBody] Breastfeeding breastfeeding)
         {
-            if(breastfeeding.Id == id)
+            if (breastfeeding.Id == id)
             {
-                await _breastfeedingService.UpdateBreastfeeding(breastfeeding);              
+                await _breastfeedingService.UpdateBreastfeeding(breastfeeding);
             }
             return Ok();
         }
@@ -96,4 +95,4 @@ namespace FullStack.API.Controllers
         }
     }
 }
-
+}

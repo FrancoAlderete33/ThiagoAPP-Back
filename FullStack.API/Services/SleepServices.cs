@@ -23,13 +23,34 @@ namespace FullStack.API.Services
         }
 
 
+
         public async Task<List<Sleep>> GetSleepsByToday(string clientTimeZone)
         {
-            var now = DateTime.Now;
-            var todayStart = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(now.Year, now.Month, now.Day, 0, 0, 0), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
-            var todayEnd = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(now.Year, now.Month, now.Day, 23, 59, 59), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+            var nowUtc = DateTime.UtcNow;
+            var clientTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone);
+            var todayStart = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(nowUtc.Year, nowUtc.Month, nowUtc.Day, 0, 0, 0), clientTimeZoneInfo);
+            var todayEnd = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(nowUtc.Year, nowUtc.Month, nowUtc.Day, 23, 59, 59), clientTimeZoneInfo);
+
             var sleeps = await _dbContext.Sleeps
-                                    .Where(b => b.date >= todayStart && b.date <= todayEnd)
+                .Where(b => b.date >= todayStart && b.date <= todayEnd)
+                .OrderByDescending(b => b.date)
+                .ToListAsync();
+
+            foreach (var sleep in sleeps)
+            {
+                sleep.start_time = TimeZoneInfo.ConvertTimeFromUtc(sleep.start_time, clientTimeZoneInfo);
+                sleep.end_time = TimeZoneInfo.ConvertTimeFromUtc(sleep.end_time, clientTimeZoneInfo);
+            }
+
+            return sleeps;
+        }
+
+        public async Task<List<Sleep>> GetSleepsByDate(DateTime date, string clientTimeZone)
+        {
+            var dateStart = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(date.Year, date.Month, date.Day, 0, 0, 0), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+            var dateEnd = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(date.Year, date.Month, date.Day, 23, 59, 59), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+            var sleeps = await _dbContext.Sleeps
+                                    .Where(b => b.date >= dateStart && b.date <= dateEnd)
                                     .OrderByDescending(b => b.date)
                                     .ToListAsync();
 
@@ -41,11 +62,12 @@ namespace FullStack.API.Services
 
             return sleeps;
         }
+
         public async Task<Sleep> CreateSleep(Sleep sleep)
         {
-            _dbContext.Sleeps.Add(sleep);
+            await _dbContext.Sleeps.AddAsync(sleep);
             await _dbContext.SaveChangesAsync();
-            return sleep;
+            return await Task.FromResult(sleep);
         }
 
         public async Task UpdateSleep(Sleep sleep)

@@ -41,9 +41,28 @@ namespace FullStack.API.Services
 
             return breastfeedings;
         }
+
+        public async Task<List<Breastfeeding>> GetBreastfeedingByDate(DateTime date, string clientTimeZone)
+        {
+            var dateStart = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(date.Year, date.Month, date.Day, 0, 0, 0), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+            var dateEnd = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(date.Year, date.Month, date.Day, 23, 59, 59), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+            var breastfeedings = await _dbContext.Breastfeedings
+                                    .Where(b => b.date >= dateStart && b.date <= dateEnd)
+                                    .OrderByDescending(b => b.date)
+                                    .ToListAsync();
+
+            foreach (var breastfeeding in breastfeedings)
+            {
+                breastfeeding.start_time = TimeZoneInfo.ConvertTimeFromUtc(breastfeeding.start_time, TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+                breastfeeding.end_time = TimeZoneInfo.ConvertTimeFromUtc(breastfeeding.end_time, TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+            }
+
+            return breastfeedings;
+        }
+
         public async Task<Breastfeeding> CreateBreastfeeding(Breastfeeding breastfeeding)
         {
-            _dbContext.Breastfeedings.Add(breastfeeding);
+            await _dbContext.Breastfeedings.AddAsync(breastfeeding);
             await _dbContext.SaveChangesAsync();
             return breastfeeding;
         }

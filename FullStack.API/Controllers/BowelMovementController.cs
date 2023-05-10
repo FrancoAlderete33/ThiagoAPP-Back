@@ -17,9 +17,9 @@ namespace FullStack.API.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllBowelMovements()
         {
-            var bowelMovements =await _bowelMovementService.GetAllBowelMovements();
+            var bowelMovements = await _bowelMovementService.GetAllBowelMovements();
             return Ok(bowelMovements);
         }
 
@@ -43,6 +43,20 @@ namespace FullStack.API.Controllers
             var bowelMovements = await _bowelMovementService.GetBowelMovementByToday(clientTimeZone);
 
             return Ok(bowelMovements);
+        }
+
+        [HttpGet("ByDate")]
+        public async Task<IActionResult> GetBowelMovementByDate([FromQuery] DateTime date, string clientTimeZone)
+        {
+            try
+            {
+                var result = await _bowelMovementService.GetBowelMovementByDate(date, clientTimeZone);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("NewOne")]

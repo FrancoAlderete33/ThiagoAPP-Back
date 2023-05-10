@@ -9,6 +9,7 @@ var services = builder.Services;
 services.AddScoped<IBreastfeedingServices, BreastfeedingServices>();
 services.AddScoped<ISleepServices, SleepServices>();
 services.AddScoped<IBowelMovementService, BowelMovementService>();
+services.AddScoped<ICalendarServices, CalendarServices>();
 
 
 builder.Services.AddControllers();

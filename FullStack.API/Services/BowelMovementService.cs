@@ -37,6 +37,18 @@ namespace FullStack.API.Services
             return bowelMovements;
         }
 
+        public async Task<List<BowelMovement>> GetBowelMovementByDate(DateTime date, string clientTimeZone)
+        {
+            var dateStart = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(date.Year, date.Month, date.Day, 0, 0, 0), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+            var dateEnd = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(date.Year, date.Month, date.Day, 23, 59, 59), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+            var bowelmovements = await _dbContext.BowelMovements
+                                    .Where(b => b.date >= dateStart && b.date <= dateEnd)
+                                    .OrderByDescending(b => b.date)
+                                    .ToListAsync();
+
+            return bowelmovements;
+        }
+
 
         public async Task<BowelMovement> CreateBowelMovement(BowelMovement bowelMovement)
         {

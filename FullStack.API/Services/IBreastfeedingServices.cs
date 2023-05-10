@@ -6,6 +6,7 @@ namespace FullStack.API.Services
     {
         Task<List<Breastfeeding>> GetAllBreastfeedings();
         Task<List<Breastfeeding>> GetBreastfeedingByToday(string clientTimeZone);
+        Task<List<Breastfeeding>> GetBreastfeedingByDate(DateTime date, string clientTimeZone);
         Task<Breastfeeding> GetBreastfeedingById(int id);
         Task<Breastfeeding> CreateBreastfeeding(Breastfeeding breastfeeding);
         Task UpdateBreastfeeding(Breastfeeding breastfeeding);
