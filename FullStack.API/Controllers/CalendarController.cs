@@ -18,14 +18,14 @@ namespace FullStack.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllEvents()
         {
-            var events = await _calendarServices.GetAllEvents();
+            List<Calendar> events = await _calendarServices.GetAllEvents();
             return Ok(events);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetEventById(int id)
         {
-            var eventById = await _calendarServices.GetEventById(id);
+            Calendar eventById = await _calendarServices.GetEventById(id);
             if (eventById == null)
             {
                 return NotFound();
@@ -35,20 +35,31 @@ namespace FullStack.API.Controllers
 
 
 
+        /// <summary>
+        /// Devuelve todos los eventos del dia actual.
+        /// </summary>
+        /// <param name="clientTimeZone">Identifica el uso horario del cliente</param>
+        /// <returns>Devuelve un estado 200 con los eventos</returns>
         [HttpGet("Today")]
         public async Task<IActionResult> GetEventsByToday([FromQuery] string clientTimeZone)
         {
-            var events = await _calendarServices.GetEventsByToday(clientTimeZone);
+            List<Calendar> events = await _calendarServices.GetEventsByToday(clientTimeZone);
 
             return Ok(events);
         }
 
+        /// <summary>
+        /// Metodo para filtrar los eventos de una fecha especifica.
+        /// </summary>
+        /// <param name="date">Fecha especifica que ha seleccionado el cliente</param>
+        /// <param name="clientTimeZone">Identifica el uso horario del cliente</param>
+        /// <returns>Devuelve un estado 200 con los eventos de una fecha especifica</returns>
         [HttpGet("ByDate")]
-        public async Task<IActionResult> GetBreastfeedingByDate([FromQuery] DateTime date, string clientTimeZone)
+        public async Task<IActionResult> GetEventsByDate([FromQuery] DateTime date, string clientTimeZone)
         {
             try
             {
-                var result = await _breastfeedingService.GetBreastfeedingByDate(date, clientTimeZone);
+                List<Calendar> result = await _calendarServices.GetEventsByDate(date, clientTimeZone);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -61,38 +72,36 @@ namespace FullStack.API.Controllers
 
         [HttpPost("NewOne")]
 
-        public async Task<IActionResult> CreateBreastfeeding([FromBody] Breastfeeding breastfeeding)
+        public async Task<IActionResult> CreateEvent([FromBody] Calendar calendar)
         {
-            decimal duration = (decimal)(breastfeeding.end_time - breastfeeding.start_time).TotalMinutes;
-            breastfeeding.durationInMinutes = duration;
 
             try
             {
-                await _breastfeedingService.CreateBreastfeeding(breastfeeding);
+                await _calendarServices.CreateEvent(calendar);
                 return Ok();
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "Error al crear el registro de lactancia.", error = ex.Message });
+                return BadRequest(new { message = "Error al crear el evento.", error = ex.Message });
             }
         }
 
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateBreastfeeding(int id, [FromBody] Breastfeeding breastfeeding)
+        public async Task<IActionResult> UpdateEvent(int id, [FromBody] Calendar calendar)
         {
-            if (breastfeeding.Id == id)
+            if (calendar.Id == id)
             {
-                await _breastfeedingService.UpdateBreastfeeding(breastfeeding);
+                await _calendarServices.UpdateEvent(calendar);
             }
             return Ok();
         }
 
         [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> DeleteBreastfeeding(int id)
+        public async Task<IActionResult> DeleteEvent(int id)
         {
-            await _breastfeedingService.DeleteBreastfeeding(id);
+            await _calendarServices.DeleteEvent(id);
             return Ok();
         }
     }
 }
-}
+

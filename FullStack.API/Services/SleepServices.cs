@@ -26,17 +26,17 @@ namespace FullStack.API.Services
 
         public async Task<List<Sleep>> GetSleepsByToday(string clientTimeZone)
         {
-            var nowUtc = DateTime.UtcNow;
-            var clientTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone);
-            var todayStart = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(nowUtc.Year, nowUtc.Month, nowUtc.Day, 0, 0, 0), clientTimeZoneInfo);
-            var todayEnd = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(nowUtc.Year, nowUtc.Month, nowUtc.Day, 23, 59, 59), clientTimeZoneInfo);
+            DateTime nowUtc = DateTime.UtcNow;
+            TimeZoneInfo clientTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone);
+            DateTime todayStart = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(nowUtc.Year, nowUtc.Month, nowUtc.Day, 0, 0, 0), clientTimeZoneInfo);
+            DateTime todayEnd = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(nowUtc.Year, nowUtc.Month, nowUtc.Day, 23, 59, 59), clientTimeZoneInfo);
 
-            var sleeps = await _dbContext.Sleeps
+            List<Sleep> sleeps = await _dbContext.Sleeps
                 .Where(b => b.date >= todayStart && b.date <= todayEnd)
                 .OrderByDescending(b => b.date)
                 .ToListAsync();
 
-            foreach (var sleep in sleeps)
+            foreach (Sleep sleep in sleeps)
             {
                 sleep.start_time = TimeZoneInfo.ConvertTimeFromUtc(sleep.start_time, clientTimeZoneInfo);
                 sleep.end_time = TimeZoneInfo.ConvertTimeFromUtc(sleep.end_time, clientTimeZoneInfo);
@@ -47,14 +47,14 @@ namespace FullStack.API.Services
 
         public async Task<List<Sleep>> GetSleepsByDate(DateTime date, string clientTimeZone)
         {
-            var dateStart = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(date.Year, date.Month, date.Day, 0, 0, 0), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
-            var dateEnd = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(date.Year, date.Month, date.Day, 23, 59, 59), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
-            var sleeps = await _dbContext.Sleeps
+            DateTime dateStart = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(date.Year, date.Month, date.Day, 0, 0, 0), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+            DateTime dateEnd = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(date.Year, date.Month, date.Day, 23, 59, 59), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+            List<Sleep> sleeps = await _dbContext.Sleeps
                                     .Where(b => b.date >= dateStart && b.date <= dateEnd)
                                     .OrderByDescending(b => b.date)
                                     .ToListAsync();
 
-            foreach (var sleep in sleeps)
+            foreach (Sleep sleep in sleeps)
             {
                 sleep.start_time = TimeZoneInfo.ConvertTimeFromUtc(sleep.start_time, TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
                 sleep.end_time = TimeZoneInfo.ConvertTimeFromUtc(sleep.end_time, TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
@@ -80,7 +80,7 @@ namespace FullStack.API.Services
 
         public async Task DeleteSleep(int id)
         {
-            var sleep = await _dbContext.Sleeps.FindAsync(id);
+            Sleep sleep = await _dbContext.Sleeps.FindAsync(id);
 
             if (sleep != null)
             {

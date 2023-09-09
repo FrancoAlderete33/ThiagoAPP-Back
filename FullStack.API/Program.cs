@@ -2,10 +2,10 @@ using FullStack.API.Data;
 using FullStack.API.Services;
 using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var services = builder.Services;
+IServiceCollection services = builder.Services;
 services.AddScoped<IBreastfeedingServices, BreastfeedingServices>();
 services.AddScoped<ISleepServices, SleepServices>();
 services.AddScoped<IBowelMovementService, BowelMovementService>();
@@ -25,7 +25,7 @@ options.UseSqlServer(builder.Configuration.GetConnectionString("FullStackConnect
 
 
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -18,14 +18,14 @@ namespace FullStack.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllSleeps()
         {
-            var sleeps = await _sleepServices.GetAllSleeps();
+            List<Sleep> sleeps = await _sleepServices.GetAllSleeps();
             return Ok(sleeps);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetSleepById(int id)
         {
-            var sleep = await _sleepServices.GetSleepById(id);
+            Sleep sleep = await _sleepServices.GetSleepById(id);
             if (sleep == null)
             {
                 return NotFound();
@@ -34,24 +34,61 @@ namespace FullStack.API.Controllers
             return Ok(sleep);
         }
 
+        /// <summary>
+        /// Devuelve todos los periodos de sueño del dia actual.
+        /// </summary>
+        /// <param name="clientTimeZone">Identifica el uso horario del cliente</param>
+        /// <returns>Devuelve un estado 200 con los periodos de sueño</returns>
         [HttpGet("today")]
-        public async Task<IActionResult> GetAllByToday(string clientTimeZone)
+        public async Task<IActionResult> GetAllSleepsByToday(string clientTimeZone)
         {
-            var sleeps = await _sleepServices.GetSleepsByToday(clientTimeZone);
+            List<Sleep> sleeps = await _sleepServices.GetSleepsByToday(clientTimeZone);
             return Ok(sleeps);
         }
 
+        /// <summary>
+        /// Metodo para filtrar los periodos de sueño de una fecha especifica
+        /// </summary>
+        /// <param name="date">Fecha especifica que ha seleccionado el cliente</param>
+        /// <param name="clientTimeZone">Identifica el uso horario del cliente</param>
+        /// <returns>Devuelve un estado 200 con los periodos de sueño de una fecha especifica</returns>
         [HttpGet("ByDate")]
         public async Task<IActionResult> GetSleepsByDate([FromQuery] DateTime date, string clientTimeZone)
         {
             try
             {
-                var result = await _sleepServices.GetSleepsByDate(date, clientTimeZone);
+                List<Sleep> result = await _sleepServices.GetSleepsByDate(date, clientTimeZone);
                 return Ok(result);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Metodo para calcular el timpo neto de sueño 
+        /// </summary>
+        /// <param name="clientTimeZone">Identifica el uso horario del cliente</param>
+        /// <returns>Devuelve un estado 200 con el calculo de la duracion total en minutos de todos los periodos de sueño cargados en el dia actual</returns>
+        [HttpGet("today/duration")]
+        public async Task<IActionResult> GetTotalSleepsDurationByToday(string clientTimeZone)
+        {
+            try
+            {
+                List<Sleep> sleeps = await _sleepServices.GetSleepsByToday(clientTimeZone);
+                int durationInMinutes = 0;
+
+                foreach (Sleep sleep in sleeps)
+                {
+                    durationInMinutes += Convert.ToInt32(sleep.durationInMinutes);
+                }
+
+                return Ok(durationInMinutes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex}");
             }
         }
 
@@ -62,11 +99,6 @@ namespace FullStack.API.Controllers
             {
                 return BadRequest("Sleep data is invalid");
             }
-
-            //if (sleep.start_time >= sleep.end_time)
-            //{
-            //    return BadRequest("Sleep start time must be before end time");
-            //}
 
             decimal duration = (decimal)(sleep.end_time - sleep.start_time).TotalMinutes;
             sleep.durationInMinutes = duration;

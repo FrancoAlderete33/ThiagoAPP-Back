@@ -24,13 +24,25 @@ namespace FullStack.API.Services
         }
         public async Task<List<Calendar>> GetEventsByToday(string clientTimeZone)
         {
-            var now = DateTime.Now;
-            var todayStart = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(now.Year, now.Month, now.Day, 0, 0, 0), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
-            var todayEnd = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(now.Year, now.Month, now.Day, 23, 59, 59), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
-            var events = await _dbContext.Calendars
-                                        .Where(x => x.time >= todayStart && x.time <= todayEnd)
-                                        .OrderByDescending(x => x.time)
+            DateTime now = DateTime.Now;
+            DateTime todayStart = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(now.Year, now.Month, now.Day, 0, 0, 0), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+            DateTime todayEnd = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(now.Year, now.Month, now.Day, 23, 59, 59), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+            List<Calendar> events = await _dbContext.Calendars
+                                        .Where(x => x.timeEventStart >= todayStart && x.timeEventStart <= todayEnd)
+                                        .OrderByDescending(x => x.timeEventStart)
                                         .ToListAsync();
+
+            return events;
+        }
+
+        public async Task<List<Calendar>> GetEventsByDate(DateTime date, string clientTimeZone)
+        {
+            DateTime dateStart = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(date.Year, date.Month, date.Day, 0, 0, 0), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+            DateTime dateEnd = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(date.Year, date.Month, date.Day, 23, 59, 59), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+            List<Calendar> events = await _dbContext.Calendars 
+                                    .Where(b => b.date >= dateStart && b.date <= dateEnd)
+                                    .OrderByDescending(b => b.date)
+                                    .ToListAsync();
 
             return events;
         }
@@ -52,7 +64,7 @@ namespace FullStack.API.Services
 
     public async Task DeleteEvent(int id)
         {
-           var calendar = await _dbContext.Calendars.FindAsync(id);
+            Calendar calendar = await _dbContext.Calendars.FindAsync(id);
             if (calendar != null)
             {
                 _dbContext.Calendars.Remove(calendar);

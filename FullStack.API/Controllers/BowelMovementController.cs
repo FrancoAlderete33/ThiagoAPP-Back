@@ -17,88 +17,65 @@ namespace FullStack.API.Controllers
 
 
         [HttpGet]
+        [ProducesResponseType(200)]
         public async Task<IActionResult> GetAllBowelMovements()
         {
-            var bowelMovements = await _bowelMovementService.GetAllBowelMovements();
+            List<BowelMovement> bowelMovements = await _bowelMovementService.GetAllBowelMovements();
             return Ok(bowelMovements);
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(200)]
         public async Task<IActionResult> GetBowelMovementById(int id)
         {
-            try
-            {
-                var result = await _bowelMovementService.GetBowelMovementsById(id);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            BowelMovement result = await _bowelMovementService.GetBowelMovementsById(id);
+
+            return Ok(result);
         }
 
         [HttpGet("Today")]
+        [ProducesResponseType(200)]
         public async Task<IActionResult> GetBowelMovementByToday(string clientTimeZone)
         {
-            var bowelMovements = await _bowelMovementService.GetBowelMovementByToday(clientTimeZone);
+            List<BowelMovement> bowelMovements = await _bowelMovementService.GetBowelMovementByToday(clientTimeZone);
 
             return Ok(bowelMovements);
         }
 
+
         [HttpGet("ByDate")]
+        [ProducesResponseType(200)]
         public async Task<IActionResult> GetBowelMovementByDate([FromQuery] DateTime date, string clientTimeZone)
         {
-            try
-            {
-                var result = await _bowelMovementService.GetBowelMovementByDate(date, clientTimeZone);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            List<BowelMovement> result = await _bowelMovementService.GetBowelMovementByDate(date, clientTimeZone);
+
+            return Ok(result);
         }
 
         [HttpPost("NewOne")]
+        [ProducesResponseType(200)]
         public async Task<IActionResult> CreateBowelMovement(BowelMovement bowelMovement)
         {
-            try
-            {
-                var result = await _bowelMovementService.CreateBowelMovement(bowelMovement);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            BowelMovement result = await _bowelMovementService.CreateBowelMovement(bowelMovement);
+
+            return Ok(result);
         }
 
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateBowelMovement(int id, BowelMovement bowelMovement)
         {
-            try
-            {
-                await _bowelMovementService.UpdateBowelMovement(id, bowelMovement);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _bowelMovementService.UpdateBowelMovement(id, bowelMovement);
+
+            return Ok();
         }
 
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteBowelMovement(int id)
         {
-            try
-            {
-                await _bowelMovementService.DeleteBowelMovement(id);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _bowelMovementService.DeleteBowelMovement(id);
+
+            return Ok();
         }
+
     }
 }

@@ -21,15 +21,28 @@ namespace FullStack.API.Services
 
         public async Task<BowelMovement> GetBowelMovementsById(int id)
         {
-            return await _dbContext.BowelMovements.FindAsync(id);
+            BowelMovement bowelMovementId = await _dbContext.BowelMovements.FindAsync(id);
+
+            if (bowelMovementId == null)
+            {
+                throw new Exception($"El Id:{bowelMovementId.Id} no existe");
+            }
+
+            return bowelMovementId;
         }
 
         public async Task<List<BowelMovement>> GetBowelMovementByToday(string clientTimeZone)
         {
-            var now = DateTime.Now;
-            var todayStart = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(now.Year, now.Month, now.Day, 0, 0, 0), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
-            var todayEnd = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(now.Year, now.Month, now.Day, 23, 59, 59), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
-            var bowelMovements = await _dbContext.BowelMovements
+
+            DateTime now = DateTime.Now;
+
+            DateTime todayStart = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(now.Year, now.Month, now.Day, 0, 0, 0),
+                                  TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+
+            DateTime todayEnd = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(now.Year, now.Month, now.Day, 23, 59, 59),
+                                TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+
+            List<BowelMovement> bowelMovements = await _dbContext.BowelMovements
                                         .Where(x => x.time >= todayStart && x.time <= todayEnd)
                                         .OrderByDescending(x => x.time)
                                         .ToListAsync();
@@ -39,9 +52,13 @@ namespace FullStack.API.Services
 
         public async Task<List<BowelMovement>> GetBowelMovementByDate(DateTime date, string clientTimeZone)
         {
-            var dateStart = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(date.Year, date.Month, date.Day, 0, 0, 0), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
-            var dateEnd = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(date.Year, date.Month, date.Day, 23, 59, 59), TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
-            var bowelmovements = await _dbContext.BowelMovements
+            DateTime dateStart = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(date.Year, date.Month, date.Day, 0, 0, 0),
+                                 TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+
+            DateTime dateEnd = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(date.Year, date.Month, date.Day, 23, 59, 59),
+                               TimeZoneInfo.FindSystemTimeZoneById(clientTimeZone));
+
+            List<BowelMovement> bowelmovements = await _dbContext.BowelMovements
                                     .Where(b => b.date >= dateStart && b.date <= dateEnd)
                                     .OrderByDescending(b => b.date)
                                     .ToListAsync();
@@ -52,13 +69,26 @@ namespace FullStack.API.Services
 
         public async Task<BowelMovement> CreateBowelMovement(BowelMovement bowelMovement)
         {
-            await _dbContext.BowelMovements.AddAsync(bowelMovement);
+            if (bowelMovement == null)
+            {
+                throw new ArgumentNullException(nameof(bowelMovement));
+            }
+
+            BowelMovement newEntryOfBowelMovement = bowelMovement;
+
+            await _dbContext.BowelMovements.AddAsync(newEntryOfBowelMovement);
             await _dbContext.SaveChangesAsync();
-            return bowelMovement;
+
+            return newEntryOfBowelMovement;
         }
 
         public async Task UpdateBowelMovement(int id, BowelMovement bowelMovement)
         {
+            if (bowelMovement == null)
+            {
+                throw new Exception($"Error al actualizar BowelMovement con Id: {bowelMovement.Id}");
+            }
+
             _dbContext.BowelMovements.Update(bowelMovement);
             await _dbContext.SaveChangesAsync();
 
@@ -66,14 +96,16 @@ namespace FullStack.API.Services
 
         public async Task DeleteBowelMovement(int id)
         {
-            var bowelMovement = await _dbContext.BowelMovements.FindAsync(id);
-            if (bowelMovement != null)
+            BowelMovement bowelMovement = await _dbContext.BowelMovements.FindAsync(id);
+
+            if (bowelMovement == null)
             {
-                _dbContext.BowelMovements.Remove(bowelMovement);
-                await _dbContext.SaveChangesAsync();
+                throw new Exception($"El bowelMovement con Id: {bowelMovement.Id} no existe");
             }
 
+            _dbContext.BowelMovements.Remove(bowelMovement);
+            await _dbContext.SaveChangesAsync();
         }
-       
+
     }
 }

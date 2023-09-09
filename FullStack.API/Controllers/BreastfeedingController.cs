@@ -19,14 +19,14 @@ namespace FullStack.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllBreastfeedings()
         {
-            var breastfeedings = await _breastfeedingService.GetAllBreastfeedings();
+            List<Breastfeeding> breastfeedings = await _breastfeedingService.GetAllBreastfeedings();
             return Ok(breastfeedings);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBreastfeedingById(int id)
         {
-            var breastfeeding = await _breastfeedingService.GetBreastfeedingById(id);
+            Breastfeeding breastfeeding = await _breastfeedingService.GetBreastfeedingById(id);
             if (breastfeeding == null)
             {
                 return NotFound();
@@ -35,26 +35,63 @@ namespace FullStack.API.Controllers
         }
 
 
-
+        /// <summary>
+        /// Devuelve todos los periodos de lactancia del dia actual.
+        /// </summary>
+        /// <param name="clientTimeZone">Identifica el uso horario del cliente</param>
+        /// <returns>Devuelve un estado 200 con los periodos de lactancia</returns>
         [HttpGet("Today")]
         public async Task<IActionResult> GetBreastfeedingByToday([FromQuery] string clientTimeZone)
         {
-            var breastFeedings = await _breastfeedingService.GetBreastfeedingByToday(clientTimeZone);
+            List<Breastfeeding> breastFeedings = await _breastfeedingService.GetBreastfeedingByToday(clientTimeZone);
 
             return Ok(breastFeedings);
         }
 
+        /// <summary>
+        /// Metodo para filtrar los periodos de lactancia de una fecha especifica
+        /// </summary>
+        /// <param name="date">Fecha especifica que ha seleccionado el cliente</param>
+        /// <param name="clientTimeZone">Identifica el uso horario del cliente</param>
+        /// <returns>Devuelve un estado 200 con los periodos de lactancia de una fecha especifica</returns>
         [HttpGet("ByDate")]
         public async Task<IActionResult> GetBreastfeedingByDate([FromQuery] DateTime date, string clientTimeZone)
         {
             try
             {
-                var result = await _breastfeedingService.GetBreastfeedingByDate(date, clientTimeZone);
+                List<Breastfeeding> result = await _breastfeedingService.GetBreastfeedingByDate(date, clientTimeZone);
                 return Ok(result);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+
+        /// <summary>
+        /// Metodo para calcular el timpo neto de lactancia. 
+        /// </summary>
+        /// <param name="clientTimeZone">Identifica el uso horario del cliente</param>
+        /// <returns>Devuelve un estado 200 con el calculo de la duracion total en minutos de todos los periodos de lactancia cargados en el dia actual</returns>
+        [HttpGet("today/duration")]
+        public async Task<IActionResult> GetTotalBreastfeedingDurationByToday(string clientTimeZone)
+        {
+            try
+            {
+                List<Breastfeeding> breastfeedings = await _breastfeedingService.GetBreastfeedingByToday(clientTimeZone);
+                int durationInMinutes = 0;
+
+                foreach (Breastfeeding breastfeeding in breastfeedings)
+                {
+                    durationInMinutes += Convert.ToInt32(breastfeeding.durationInMinutes);
+                }
+
+                return Ok(durationInMinutes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex}");
             }
         }
 
