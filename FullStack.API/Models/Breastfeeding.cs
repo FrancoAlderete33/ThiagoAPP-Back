@@ -5,13 +5,13 @@ namespace FullStack.API.Models
 {
     public class Breastfeeding
     {
-        public int Id { get; set; } // Clave primaria
-        public DateTime start_time { get; set; } // Hora de inicio de la lactancia
-        public DateTime end_time { get; set; } // Hora de finalización de la lactancia
+        public int Id { get; set; } 
+        public DateTime start_time { get; set; } 
+        public DateTime end_time { get; set; } 
 
         [Column(TypeName = "decimal(18,2)")]
-        public Decimal durationInMinutes { get; set; } // Duración de la lactancia
-        public DateTime date { get; set; } // Fecha de la lactancia
+        public Decimal durationInMinutes { get; set; } 
+        public DateTime date { get; set; } 
     }
 
 

@@ -3,9 +3,9 @@
     public class Calendar
     {
         public int Id { get; set; }
-        public string title { get; set; } // Título del evento
-        public string description { get; set; } // Descripción del evento
-        public DateTime timeEventStart { get; set; } // Hora  del evento
-        public DateTime date { get; set; } // Fecha del evento
+        public string title { get; set; } 
+        public string description { get; set; } 
+        public DateTime timeEventStart { get; set; }
+        public DateTime date { get; set; } 
     }
 }
