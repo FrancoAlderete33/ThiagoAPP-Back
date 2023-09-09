@@ -62,6 +62,7 @@ namespace FullStack.API.Controllers
         }
 
         [HttpPut("update/{id}")]
+        [ProducesResponseType(200)]
         public async Task<IActionResult> UpdateBowelMovement(int id, BowelMovement bowelMovement)
         {
             await _bowelMovementService.UpdateBowelMovement(id, bowelMovement);
@@ -70,6 +71,7 @@ namespace FullStack.API.Controllers
         }
 
         [HttpDelete("delete/{id}")]
+        [ProducesResponseType(200)]
         public async Task<IActionResult> DeleteBowelMovement(int id)
         {
             await _bowelMovementService.DeleteBowelMovement(id);
