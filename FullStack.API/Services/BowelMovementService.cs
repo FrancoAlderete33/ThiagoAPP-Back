@@ -74,12 +74,10 @@ namespace FullStack.API.Services
                 throw new ArgumentNullException(nameof(bowelMovement));
             }
 
-            BowelMovement newEntryOfBowelMovement = bowelMovement;
-
-            await _dbContext.BowelMovements.AddAsync(newEntryOfBowelMovement);
+            await _dbContext.BowelMovements.AddAsync(bowelMovement);
             await _dbContext.SaveChangesAsync();
 
-            return newEntryOfBowelMovement;
+            return bowelMovement;
         }
 
         public async Task UpdateBowelMovement(int id, BowelMovement bowelMovement)
